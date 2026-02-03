@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sondages - MattMarket Digitals & Questionnaire Client</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        fieldset {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        legend {
+            font-weight: bold;
+        }
+
+        label {
+            display: block;
+            margin: 8px 0;
+        }
+
+        input,
+        select,
+        textarea {
+            margin-top: 5px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            background: #0073e6;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #005bb5;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+    <div id="sondage-tdah" style="display: none">
+        <h1>SONDAGE CLIENT - PLATEFORME TDAH / MattMarket Digitals</h1>
+        <form id="form-tdah">
+            <fieldset>
+                <legend>PARTIE 1 - PROFIL DU RÉPONDANT</legend>
+
+                <label>1. Quel est votre statut ?<br />
+                    <input type="checkbox" name="statut" value="Sujet à des troubles de la concentration" />
+                    Sujet à des troubles de la concentration<br />
+                    &emsp;&emsp;&emsp;<input type="checkbox" name="statut" value="Diagnostiqué" />
+                    Diagnostiqué<br />
+                    <input type="checkbox" name="statut" value="Parent / proche" />
+                    Parent / proche<br />
+                    <input type="checkbox" name="statut" value="Professionnel de santé" />
+                    Professionnel de santé<br />
+                    <input type="checkbox" name="statut" value="Enseignant" />
+                    Enseignant<br />
+                    <input type="checkbox" name="statut" value="Représentant institution" />
+                    Représentant institution<br />
+                    Autres : <input type="text" name="statut" /> </label><br /><br />
+
+                <label>2. Y a-t-il une ou plusieurs personnes neuro-atypiques autour de
+                    vous ?<br />
+                    <input type="checkbox" name="neuroAtypique" value="Non" /> Non<br />
+                    <input type="checkbox" name="neuroAtypique" value="Dans famille" />
+                    Oui, dans ma famille<br />
+                    <input type="checkbox" name="neuroAtypique" value="Au travail" />
+                    Oui, dans le cadre de mon travail<br />
+                    Précisions :
+                    <input type="text" placeholder="Age, genre, lien familial, année de rencontre, ..."
+                        name="neuroAtypique" style="width: 300px" /> </label><br /><br />
+
+                <label>3. Quel est votre âge ?<br />
+                    <select name="age">
+                        <option disabled selected>---</option>
+                        <option>Moins de 25 ans</option>
+                        <option>25-34 ans</option>
+                        <option>35-44 ans</option>
+                        <option>45-54 ans</option>
+                        <option>55 ans et plus</option>
+                    </select> </label><br /><br />
+
+                <label>4. Région/ville : <input type="text" name="region" /></label><br /><br />
+
+                <label>5. Avez-vous déjà utilisé un outil numérique d’accompagnement ?<br />
+                    <input type="radio" name="outil" value="oui" /> Oui
+                    <input type="radio" name="outil" value="non" /> Non<br />
+                    Si oui, lesquels ? <input type="text" name="outil" />
+                </label>
+            </fieldset>
+
+            <fieldset>
+                <legend>PARTIE 2 - DIFFICULTÉS RENCONTRÉES</legend>
+                <label>6. Problèmes rencontrés :<br />
+                    <input type="checkbox" name="problemes" value="Coordination difficile" />
+                    Coordination difficile<br />
+                    <input type="checkbox" name="problemes" value="Outils trop complexes" />
+                    Outils trop complexes<br />
+                    <input type="checkbox" name="problemes" value="Suivi dlispersé" />
+                    Suivi dispersé<br />
+                    <input type="checkbox" name="problemes" value="Pas d’espace centralisé" />
+                    Pas d’espace centralisé<br />
+                    <input type="checkbox" name="problemes" value="Stress organisationnel" />
+                    Stress organisationnel<br />
+                    <input type="checkbox" name="problemes" value="Autres" /> Autres :
+                    <input type="text" name="problemes_autres" /> </label><br /><br />
+
+                <label>7. Importance d’un outil tout-en-un :<br />
+                    <select name="importance">
+                        <option>Très important</option>
+                        <option>Important</option>
+                        <option>Peu important</option>
+                        <option>Inutile</option>
+                    </select>
+                </label>
+            </fieldset>
+
+            <fieldset>
+                <legend>PARTIE 3 - FONCTIONNALITÉS ATTENDUES</legend>
+                <label>8. Fonctionnalités utiles :<br />
+                    <input type="checkbox" name="fonctionnalites" value="Agenda partagé" />
+                    Agenda partagé<br />
+                    <input type="checkbox" name="fonctionnalites" value="Rappels" />
+                    Rappels<br />
+                    <input type="checkbox" name="fonctionnalites" value="Espace documents" />
+                    Espace documents<br />
+                    <input type="checkbox" name="fonctionnalites" value="Exercices programmés" />
+                    Exercices programmés<br />
+                    <input type="checkbox" name="fonctionnalites" value="Questionnaires" />
+                    Questionnaires<br />
+                    <input type="checkbox" name="fonctionnalites" value="Todo-list" />
+                    Todo-list<br />
+                    <input type="checkbox" name="fonctionnalites" value="Communication acteurs" />
+                    Communication acteurs<br />
+                    <input type="checkbox" name="fonctionnalites" value="Réseau social privé" />
+                    Réseau social privé<br />
+                    <input type="checkbox" name="fonctionnalites" value="Suivi des aménagements" />
+                    Suivi des aménagements<br />
+                    <input type="checkbox" name="fonctionnalites" value="Modules ludiques" />
+                    Modules ludiques </label><br /><br />
+
+                <label>9. Autres idées ?<br />
+                    <input type="radio" name="autres_idees" value="oui" /> Oui
+                    <input type="radio" name="autres_idees" value="non" /> Non<br />
+                    Si oui, précisez : <input type="text" name="autres_idees_detail" />
+                </label>
+            </fieldset>
+
+            <fieldset>
+                <legend>PARTIE 4 - MODÈLE ÉCONOMIQUE</legend>
+                <label>10. Seriez-vous prêt à utiliser la plateforme si :<br />
+                    <input type="checkbox" name="modele" value="Gratuite via structure" />
+                    Gratuite via structure<br />
+                    <input type="checkbox" name="modele" value="Payante (-10€/mois)" />
+                    Payante (-10€/mois)<br />
+                    <input type="checkbox" name="modele" value="Payante (+10€/mois)" />
+                    Payante (+10€/mois)<br />
+                    <input type="checkbox" name="modele" value="Gratuite uniquement" />
+                    Gratuite uniquement </label><br /><br />
+
+                <label>11. Tester un prototype ?<br />
+                    <input type="radio" name="test_prototype" value="oui" /> Oui<br />
+                    Email : <input type="email" name="email" /><br />
+                    <input type="radio" name="test_prototype" value="non" /> Non
+                </label>
+            </fieldset>
+
+            <fieldset>
+                <legend>PARTIE 5 - QUESTIONS SPÉCIFIQUES</legend>
+
+                <h3>Parents / BtoC</h3>
+                <label>Diagnostic ?<br />
+                    <input type="radio" name="diagnostic" value="oui" /> Oui
+                    <input type="radio" name="diagnostic" value="non" /> Non
+                    <input type="radio" name="diagnostic" value="cours" /> En cours </label><br /><br />
+
+                <label>Tranche d’âge enfant :
+                    <select name="tranche_enfant">
+                        <option>Moins de 6 ans</option>
+                        <option>6-11</option>
+                        <option>12-14</option>
+                        <option>15-18</option>
+                        <option>18+</option>
+                    </select> </label><br /><br />
+
+                <label>Utiliser appli ludique ?
+                    <input type="radio" name="appli_ludique" value="oui" /> Oui
+                    <input type="radio" name="appli_ludique" value="non" /> Non
+                    <input type="radio" name="appli_ludique" value="peut-etre" />
+                    Peut-être
+                </label>
+
+                <h3>Professionnels / BtoB</h3>
+                <label>Profession : <input type="text" name="profession" /></label><br /><br />
+
+                <label>Fonctionnalités intéressantes :<br />
+                    <input type="checkbox" name="pro_fonctionnalites" value="Dashboard" />
+                    Dashboard<br />
+                    <input type="checkbox" name="pro_fonctionnalites" value="Formulaires bilans" />
+                    Formulaires bilans<br />
+                    <input type="checkbox" name="pro_fonctionnalites" value="Communication famille/école" />
+                    Communication famille/école </label><br /><br />
+
+                <label>Utilisation dans cadre pro ?<br />
+                    <input type="radio" name="pro_usage" value="oui" /> Oui
+                    <input type="radio" name="pro_usage" value="non" /> Non
+                    <input type="radio" name="pro_usage" value="peut-etre" /> Peut-être
+                </label>
+
+                <h3>Institutions / BtoG</h3>
+                <label>Structure représentée :
+                    <input type="text" name="structure" /></label><br /><br />
+
+                <label>Déploiement ou test pilote ?<br />
+                    <input type="radio" name="test_g" value="oui" /> Oui
+                    <input type="radio" name="test_g" value="non" /> Non
+                    <input type="radio" name="test_g" value="discuter" /> À discuter </label><br /><br />
+
+                <label>Données utiles :<br />
+                    <input type="checkbox" name="donnees_utiles" value="Taux de suivi" />
+                    Taux de suivi<br />
+                    <input type="checkbox" name="donnees_utiles" value="Engagement famille" />
+                    Engagement famille<br />
+                    <input type="checkbox" name="donnees_utiles" value="Retours d’impact" />
+                    Retours d’impact<br />
+                    Autres : <input type="text" name="donnees_autres" />
+                </label>
+            </fieldset>
+
+            <br />
+            <button type="submit">Envoyer le sondage TDAH</button>
+        </form>
+    </div>
+
+    <div id="questionnaire-client" style="display: none">
+        <h1>Questionnaire Client</h1>
+        <form id="form-client">
+            <fieldset>
+                <legend>1. Informations générales</legend>
+                <label>Nom de l'entreprise : <input type="text" name="entreprise" /></label>
+                <label>Secteur d'activité : <input type="text" name="secteur" /></label>
+                <label>Nombre d'employés : <input type="number" name="employes" /></label>
+                <label>Personne de contact (nom, e-mail, téléphone) :
+                    <input type="text" name="contact" /></label>
+            </fieldset>
+
+            <fieldset>
+                <legend>2. Présence en ligne actuelle</legend>
+                <label>Avez-vous déjà un site web ?
+                    <input type="radio" name="site" value="oui" /> Oui
+                    <input type="radio" name="site" value="non" /> Non
+                </label>
+                <label>Si oui, lien de votre site : <input type="url" name="site_url" /></label>
+                <label>Depuis combien de temps existe-t-il ?
+                    <input type="text" name="anciennete" /></label>
+                <label>Êtes-vous satisfait de votre site actuel ?
+                    <input type="radio" name="satisfaction" value="oui" /> Oui
+                    <input type="radio" name="satisfaction" value="non" /> Non
+                </label>
+                <label>Si non, qu'aimeriez-vous améliorer ?
+                    <textarea name="ameliorations"></textarea>
+                </label>
+            </fieldset>
+
+            <fieldset>
+                <legend>3. Objectifs et attentes</legend>
+                <label>Objectif principal du site web :
+                    <input type="text" name="objectif" /></label>
+                <label>Fonctionnalités souhaitées :
+                    <textarea name="fonctionnalites"></textarea>
+                </label>
+                <label>Avez-vous une charte graphique, logo ou visuels ?
+                    <input type="radio" name="charte" value="oui" /> Oui
+                    <input type="radio" name="charte" value="non" /> Non
+                </label>
+                <label>Besoin de création de contenu (textes, images, vidéos) ?
+                    <input type="radio" name="contenu" value="oui" /> Oui
+                    <input type="radio" name="contenu" value="non" /> Non
+                </label>
+                <label>Public cible : <input type="text" name="cible" /></label>
+            </fieldset>
+
+            <fieldset>
+                <legend>4. Budget et délais</legend>
+                <label>Budget alloué :
+                    <select name="budget">
+                        <option>Moins de 1 000 €</option>
+                        <option>1 000 € - 3 000 €</option>
+                        <option>3 000 € - 5 000 €</option>
+                        <option>Plus de 5 000 €</option>
+                    </select>
+                </label>
+                <label>Délai souhaité pour la mise en ligne :
+                    <input type="text" name="delai" /></label>
+            </fieldset>
+
+            <fieldset>
+                <legend>5. Support informatique et maintenance</legend>
+                <label>Souhaitez-vous un accompagnement pour la maintenance du site ?
+                    <input type="radio" name="maintenance" value="oui" /> Oui
+                    <input type="radio" name="maintenance" value="non" /> Non
+                </label>
+                <label>Avez-vous besoin d'un soutien informatique quotidien ?
+                    <input type="radio" name="soutien" value="oui" /> Oui
+                    <input type="radio" name="soutien" value="non" /> Non
+                </label>
+                <label>Si oui, dans quels domaines ? <textarea name="domaines"></textarea>
+                </label>
+            </fieldset>
+
+            <fieldset>
+                <legend>6. Communication et suivi</legend>
+                <label>Préférence de contact :
+                    <input type="checkbox" name="contact_pref" value="email" /> E-mail
+                    <input type="checkbox" name="contact_pref" value="tel" /> Téléphone
+                    <input type="checkbox" name="contact_pref" value="visio" /> Visio
+                </label>
+                <label>Fréquence des mises à jour souhaitée :
+                    <input type="text" name="frequence" /></label>
+            </fieldset>
+
+            <fieldset>
+                <legend>7. Autres précisions</legend>
+                <label>Exemples de sites inspirants :
+                    <textarea name="inspirations"></textarea>
+                </label>
+                <label>Autres informations importantes :
+                    <textarea name="autres_infos"></textarea>
+                </label>
+            </fieldset>
+
+            <button type="submit">Envoyer le questionnaire</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Init Supabase
+            const supabase = window.supabase.createClient(
+                "https://cpktnkjahurhvhabwnsf.supabase.co",
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwa3Rua2phaHVyaHZoYWJ3bnNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0NTAxMjIsImV4cCI6MjA2MTAyNjEyMn0.YRYNYYTa4OGSG2a1tnNPGtp4KPf-tp9ooY4l0ZV3CDU",
+            );
+
+            // Récupère le paramètre screen
+            const params = new URLSearchParams(window.location.search);
+            const screen = params.get("screen");
+
+            if (screen === "tdah") {
+                document.getElementById("sondage-tdah").style.display = "block";
+            } else if (screen === "client") {
+                document.getElementById("questionnaire-client").style.display =
+                    "block";
+            }
+
+            let form;
+
+            if (screen === "tdah") {
+                document.getElementById("sondage-tdah").style.display = "block";
+                form = document.getElementById("form-tdah");
+            } else if (screen === "client") {
+                document.getElementById("questionnaire-client").style.display =
+                    "block";
+                form = document.getElementById("form-client");
+            }
+
+            if (!form) return;
+
+            form.addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                const formData = new FormData(form);
+                const responses = {};
+                for (const [key, value] of formData.entries()) {
+                    if (responses[key]) {
+                        Array.isArray(responses[key])
+                            ? responses[key].push(value)
+                            : (responses[key] = [responses[key], value]);
+                    } else {
+                        responses[key] = value;
+                    }
+                }
+
+                const payload = {
+                    form_id: form.id,
+                    s_type: screen, // on enregistre le type de questionnaire (tdah ou client)
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    timestamp: new Date().toISOString(),
+                    language: navigator.language || navigator.userLanguage,
+                    responses: responses,
+                };
+
+                try {
+                    const { error } = await supabase.from("sondages").insert([payload]);
+                    if (error) {
+                        alert("❌ Erreur lors de l'envoi : " + error.message);
+                    } else {
+                        alert("✅ Merci ! Vos réponses ont bien été enregistrées.");
+                        form.reset();
+                    }
+                } catch (err) {
+                    alert("💥 Une erreur inattendue est survenue : " + err.message);
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
