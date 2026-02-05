@@ -77,10 +77,14 @@
         /* Main content */
         main {
             flex: 1;
+            /*occupe tout l'espace disponible dans le conteneur flex*/
+            /*prend tout l'espace restant à côté de la sidebar*/
             display: flex;
+            /*affiche les éléments enfants en ligne (horizontalement)*/
             flex-direction: column;
             background: white;
             overflow-y: auto;
+            /*défiler le contenu verticalement*/
         }
 
         .header {

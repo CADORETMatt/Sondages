@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Visionneur de Sondages</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<style>
+    * {
+        /* "*" = select all elements */
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    :root {
+        --background-color: #222;
+        --background-secondary: #000;
+        --text-color: #d9bfff;
+        --primary-color: #470684;
+        --accent-color: #FF06B5;
+        --box-shadow-color: #FF06B5;
+        --border-color: #ff06b5;
+        --input-bg: #1c1c1c;
+        --button-hover-bg: #ff06b5;
+        --sidebar-bg: #222;
+        --log-bg: #000;
+        --header-color: #470684;
+        --footer-color: #aaa;
+        --buzz-inactive-opacity: 0.4;
+        --buzz-glow: rgba(255, 0, 0, 0.6);
+        --border-radius: 12px;
+        --padding: 16px;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        background: var(--background-color);
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+    }
+</style>
+
+<body>
+    <!-- Sidebar -->
+    <style>
+        /* Responsive design : vertical on desktop, horizontal on mobile */
+        .sidebar {
+            position: fixed;
+            /*fixed = positionne le sidebar de manière fixe par 
+            rapport à la fenêtre du navigateur*/
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+            /*scroll-vertical*/
+            background: var(--sidebar-bg);
+            box-shadow: 2px 2px 5px var(--box-shadow-color);
+            /* 2px=décalage horizontal, 0=décalage vertical, 5px=flou*/
+        }
+
+        @media (max-width: 600px) {
+            .sidebar {
+                display: block;
+                /*display: block = affiche les éléments du sidebar en bloc,
+                les uns en dessous des autres*/
+                grid-template-columns: 1fr 1fr 1fr;
+                width: 100%;
+                height: 35vh;
+                border-bottom: 1px solid var(--border-color);
+                /*gap: 5px;*/
+                /*white-space: nowrap;*/
+            }
+        }
+
+        @media (min-width: 600px) {
+            .sidebar {
+                display: flex;
+                /*flex = utilise le modèle de boîte flexible pour organiser 
+            les éléments enfants*/
+                flex-direction: column;
+                height: 100%;
+                width: 20vw;
+                /*largeur du sidebar*/
+                border-right: 1px solid var(--border-color);
+                /* gap: 20px;*/
+                /*espacement entre les éléments du sidebar*/
+            }
+        }
+    </style>
+    <div class="sidebar">
+        <style>
+            .sidebar-header {
+                padding: 20px;
+                background: var(--header-color);
+                border-bottom: 1px solid var(--border-color);
+                color: var(--text-color);
+                font-weight: bold;
+                font-size: 16px;
+            }
+        </style>
+        <div class="sidebar-header">📊 Sondages</div>
+        <style>
+            .survey-item {
+                padding: 15px 20px;
+                border-bottom: 1px solid #eee;
+                cursor: pointer;
+                transition: background 0.3s;
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .survey-item:hover {
+                /*hover = pseudo-classe CSS pour appliquer un style lorsque l'utilisateur survole l'élément avec la souris*/
+                background: #f0f0f0;
+            }
+
+            .survey-item.active {
+                /*active = classe CSS pour indiquer que l'élément est sélectionné*/
+                background: #e3f2fd;
+                border-left: 4px solid #0073e6;
+                padding-left: 16px;
+            }
+
+            .survey-index {
+                /*index = numéro du sondage dans la liste*/
+                font-weight: bold;
+                color: #0073e6;
+                font-size: 14px;
+            }
+
+            .survey-form-id {
+                /*form-id = identifiant du formulaire de sondage*/
+                font-size: 12px;
+                color: #666;
+                font-family: monospace;
+            }
+
+            .survey-date {
+                /*date = date de création du sondage*/
+                font-size: 12px;
+                color: #999;
+            }
+        </style>
+        <div id="survey-list" class="survey-list"></div><!-- liste des sondages -->
+    </div>
+
+    <!-- Main content -->
+    <style>
+        main {
+            flex: 1;
+            /*occupe tout l'espace disponible dans le conteneur flex*/
+            /*prend tout l'espace restant à côté de la sidebar*/
+            display: flex;
+            /*affiche les éléments enfants en ligne (horizontalement)*/
+            flex-direction: column;
+            background: var(--background-secondary);
+            overflow-y: auto;
+        }
+
+        @media (max-width: 600px) {
+            main {
+                width: 100%;
+                /*top: 350px;*/
+                border-bottom: 1px solid var(--border-color);
+                display: block;
+                /*display: block = affiche les éléments du sidebar en bloc,
+                les uns en dessous des autres*/
+                grid-template-columns: 1fr 1fr 1fr;
+                /*gap: 5px;*/
+                /*white-space: nowrap;*/
+            }
+        }
+
+        @media (min-width: 600px) {
+            main {
+                display: flex;
+                /*flex = utilise le modèle de boîte flexible pour organiser 
+            les éléments enfants*/
+                flex-direction: column;
+                /*height: 100%;*/
+                /*left: 300px;*/
+                /*largeur du sidebar*/
+                /* gap: 20px;*/
+                /*espacement entre les éléments du sidebar*/
+            }
+        }
+    </style>
+    <main>
+        <style>
+            .header {
+                padding: 20px;
+                background: var(--header-color);
+                color: var(--text-color);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            @media (max-width: 600px) {
+                main {
+                    top: 45vh;
+                }
+            }
+
+            @media (min-width: 600px) {
+                main {
+                    left: 20vw;
+                }
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+        </style>
+        <div class="header">
+            <h1>Détail du Sondage</h1>
+            <div class="survey-nav">
+                <button class="nav-btn" id="prev-btn">←</button>
+                <span class="survey-counter">
+                    <span id="current-index">-</span> / <span id="total-surveys">-</span>
+                </span>
+                <button class="nav-btn" id="next-btn">→</button>
+            </div>
+        </div>
+
+        <div id="survey-display" class="survey-content">
+            <div class="loading">Chargement des sondages...</div>
+        </div>
+    </main>
