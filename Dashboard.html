@@ -23,6 +23,7 @@
         --primary-color: #470684;
         --accent-color: #FF06B5;
         --box-shadow-color: #FF06B5;
+        --box-shadow-flou: 3px;
         --border-color: #ff06b5;
         --input-bg: #1c1c1c;
         --button-hover-bg: #ff06b5;
@@ -34,6 +35,9 @@
         --buzz-glow: rgba(255, 0, 0, 0.6);
         --border-radius: 12px;
         --padding: 16px;
+        --separ-vertibar: 20vw;
+        --separ-horizibar: 10vh;
+        --topbar-height: 30vh;
     }
 
     body {
@@ -58,8 +62,6 @@
             overflow-y: auto;
             /*scroll-vertical*/
             background: var(--sidebar-bg);
-            box-shadow: 2px 2px 5px var(--box-shadow-color);
-            /* 2px=décalage horizontal, 0=décalage vertical, 5px=flou*/
         }
 
         @media (max-width: 600px) {
@@ -69,7 +71,6 @@
                 les uns en dessous des autres*/
                 grid-template-columns: 1fr 1fr 1fr;
                 width: 100%;
-                height: 35vh;
                 border-bottom: 1px solid var(--border-color);
                 /*gap: 5px;*/
                 /*white-space: nowrap;*/
@@ -83,23 +84,30 @@
             les éléments enfants*/
                 flex-direction: column;
                 height: 100%;
-                width: 20vw;
+                width: var(--separ-vertibar);
                 /*largeur du sidebar*/
                 border-right: 1px solid var(--border-color);
                 /* gap: 20px;*/
                 /*espacement entre les éléments du sidebar*/
+                box-shadow: var(--box-shadow-flou) 0 var(--box-shadow-flou) var(--box-shadow-color);
+                /*rgba(255, 6, 181,0.3);*/
             }
         }
     </style>
     <div class="sidebar">
         <style>
             .sidebar-header {
-                padding: 20px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
                 background: var(--header-color);
+                padding-top: 20px;
+                padding-bottom: 20px;
                 border-bottom: 1px solid var(--border-color);
                 color: var(--text-color);
                 font-weight: bold;
-                font-size: 16px;
+                font-size: 18px;
+                height: var(--separ-horizibar);
             }
         </style>
         <div class="sidebar-header">📊 Sondages</div>
@@ -167,12 +175,15 @@
                 width: 100%;
                 /*top: 350px;*/
                 border-bottom: 1px solid var(--border-color);
+                box-shadow: 0 -3px var(--box-shadow-flou) var(--box-shadow-color);
+                /* 1erN#=décalage horizontal, 2è=décalage vertical, 3è=flou*/
                 display: block;
                 /*display: block = affiche les éléments du sidebar en bloc,
                 les uns en dessous des autres*/
                 grid-template-columns: 1fr 1fr 1fr;
                 /*gap: 5px;*/
                 /*white-space: nowrap;*/
+                margin-top: var(--topbar-height);
             }
         }
 
@@ -182,6 +193,7 @@
                 /*flex = utilise le modèle de boîte flexible pour organiser 
             les éléments enfants*/
                 flex-direction: column;
+                /*shadow box*/
                 /*height: 100%;*/
                 /*left: 300px;*/
                 /*largeur du sidebar*/
@@ -199,26 +211,74 @@
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
+                border-bottom: 1px solid var(--border-color);
+                height: var(--separ-horizibar);
             }
 
             @media (max-width: 600px) {
-                main {
-                    top: 45vh;
+                .header {
+                    /*additionner 2 valeurs*/
                 }
             }
 
             @media (min-width: 600px) {
-                main {
-                    left: 20vw;
+                .header {
+                    margin-left: var(--separ-vertibar);
                 }
             }
 
             .header h1 {
-                font-size: 24px;
+                font-size: 16px;
             }
         </style>
         <div class="header">
-            <h1>Détail du Sondage</h1>
+            <h1>Détail du sondage</h1>
+            <style>
+                .survey-nav {
+                    display: flex;
+                    align-items: center;
+                    gap: 0;
+                    /*em= unité relative à la taille de la police de l'élément*/
+                    font-size: 16px;
+                }
+
+                .nav-btn {
+                    background: var(--primary-color);
+                    color: var(--text-color);
+                    border: var(--text-color) var(--box-shadow-flou) solid;
+                    padding: 8px 15px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    font-weight: bold;
+                    font-size: 16px;
+                    transition: background 0.8s;
+                }
+
+                .nav-btn:hover:not(:disabled) {
+                    /*hover:not(:disabled) = applique le style de survol uniquement 
+                    si le bouton n'est pas désactivé*/
+                    background: var(--button-hover-bg);
+                }
+
+                .nav-btn:disabled {
+                    /*disabled = pseudo-classe CSS pour appliquer un style lorsque
+                     le bouton est désactivé*/
+                    opacity: 0.5;
+                    cursor: not-allowed;
+                }
+
+                /*A vérifier après JS - quand on clique sur le bouton*/
+                .nav-btn:active {
+                    background: var(--accent-color);
+                    box-shadow: 0 0 var(--box-shadow-flou) var(--accent-color);
+                }
+
+                .survey-counter {
+                    min-width: 80px;
+                    text-align: center;
+                    font-weight: bold;
+                }
+            </style>
             <div class="survey-nav">
                 <button class="nav-btn" id="prev-btn">←</button>
                 <span class="survey-counter">
