@@ -106,7 +106,7 @@
                 border-bottom: 1px solid var(--border-color);
                 color: var(--text-color);
                 font-weight: bold;
-                font-size: 18px;
+                font-size: 16px;
                 height: var(--separ-horizibar);
             }
         </style>
@@ -114,7 +114,7 @@
         <style>
             .survey-item {
                 padding: 15px 20px;
-                border-bottom: 1px solid #eee;
+                border-bottom: 1px solid var(--border-color);
                 cursor: pointer;
                 transition: background 0.3s;
                 display: flex;
@@ -124,37 +124,60 @@
 
             .survey-item:hover {
                 /*hover = pseudo-classe CSS pour appliquer un style lorsque l'utilisateur survole l'élément avec la souris*/
-                background: #f0f0f0;
+                background: var(--primary-color);
             }
 
             .survey-item.active {
                 /*active = classe CSS pour indiquer que l'élément est sélectionné*/
-                background: #e3f2fd;
-                border-left: 4px solid #0073e6;
+                background: var(--primary-color);
+                border-left: 4px solid var(--border-color);
                 padding-left: 16px;
             }
 
             .survey-index {
                 /*index = numéro du sondage dans la liste*/
                 font-weight: bold;
-                color: #0073e6;
+                color: var(--accent-color);
                 font-size: 14px;
             }
 
             .survey-form-id {
                 /*form-id = identifiant du formulaire de sondage*/
+                font-weight: bold;
                 font-size: 12px;
-                color: #666;
+                color: var(--text-color);
                 font-family: monospace;
             }
 
             .survey-date {
                 /*date = date de création du sondage*/
                 font-size: 12px;
-                color: #999;
+                color: var(--text-color);
             }
         </style>
         <div id="survey-list" class="survey-list"></div><!-- liste des sondages -->
+        <script>
+            // Render sidebar list
+            function renderSidebarList() {
+                const list = document.getElementById("survey-list");
+                list.innerHTML = surveys.map((survey, idx) => `
+                <div class="survey-item ${idx === currentIndex ? "active" : ""}" data-index="${idx}">
+                    <div class="survey-index">#${survey.display_index}</div>
+                    <div class="survey-form-id">${survey.form_id}</div>
+                    <div class="survey-date">${formatDate(survey.timestamp)}</div>
+                </div>
+            `).join("");
+                // Add click listeners
+                document.querySelectorAll(".survey-item").forEach(item => {
+                    item.addEventListener("click", () => {
+                        currentIndex = parseInt(item.dataset.index);
+                        renderSidebarList();
+                        displaySurvey();
+                        updateNavButtons();
+                    });
+                });
+            }
+        </script>
     </div>
 
     <!-- Main content -->
@@ -286,9 +309,261 @@
                 </span>
                 <button class="nav-btn" id="next-btn">→</button>
             </div>
+            <script>
+                let surveys = [];
+                let currentIndex = -1;
+                // Navigation buttons
+                function updateNavButtons() {
+                    document.getElementById("prev-btn").disabled = currentIndex <= 0;
+                    document.getElementById("next-btn").disabled = currentIndex >= surveys.length - 1;
+                }
+                document.getElementById("prev-btn").addEventListener("click", () => {
+                    if (currentIndex > 0) {
+                        currentIndex--;
+                        renderSidebarList();
+                        displaySurvey();
+                        updateNavButtons();
+                    }
+                });
+                document.getElementById("next-btn").addEventListener("click", () => {
+                    if (currentIndex < surveys.length - 1) {
+                        currentIndex++;
+                        renderSidebarList();
+                        displaySurvey();
+                        updateNavButtons();
+                    }
+                });
+            </script>
         </div>
+        <style>
+            /* Survey content */
+            .survey-content {
+                padding: 30px;
+                flex: 1;
+                overflow-y: auto;
+            }
 
+            .survey-meta {
+                display: flex;
+                gap: 30px;
+                margin-bottom: 25px;
+                padding: 15px;
+                background: #f9f9f9;
+                border-radius: 8px;
+                font-size: 14px;
+            }
+
+            .meta-item {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .meta-label {
+                font-weight: bold;
+                color: #666;
+            }
+
+            .meta-value {
+                color: #333;
+                font-family: monospace;
+            }
+
+            .survey-questions {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .question-block {
+                padding: 15px;
+                background: #fafafa;
+                border-left: 4px solid #0073e6;
+                border-radius: 5px;
+            }
+
+            .question-text {
+                font-weight: bold;
+                margin-bottom: 8px;
+                color: #0073e6;
+            }
+
+            .answer-text {
+                color: #333;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+
+            .answer-array {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                margin-top: 8px;
+            }
+
+            .answer-badge {
+                background: #e3f2fd;
+                color: #0073e6;
+                padding: 5px 12px;
+                border-radius: 20px;
+                font-size: 12px;
+                font-weight: 500;
+            }
+
+            .loading {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100%;
+                font-size: 18px;
+                color: #666;
+            }
+
+            .error {
+                padding: 20px;
+                background: #ffebee;
+                color: #c62828;
+                border-radius: 5px;
+                margin: 20px;
+            }
+        </style>
         <div id="survey-display" class="survey-content">
             <div class="loading">Chargement des sondages...</div>
         </div>
     </main>
+    <script>
+        if (!window.visalizerLoaded) { // Vérifie si le script a déjà été chargé pour éviter les doublons  
+            window.visalizerLoaded = true;
+
+            // Function to generate temp questions dynamically
+            function generateQuestionsTemp(count) {
+                return Array.from({ length: count }, (_, i) => `Ask ${String(i + 1).padStart(2, "0")}`);
+            }
+
+
+            const supabase = window.supabaseClient || window.supabase.createClient(
+                "https://cpktnkjahurhvhabwnsf.supabase.co",
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwa3Rua2phaHVyaHZoYWJ3bnNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0NTAxMjIsImV4cCI6MjA2MTAyNjEyMn0.YRYNYYTa4OGSG2a1tnNPGtp4KPf-tp9ooY4l0ZV3CDU"
+            );
+
+            if (!window.supabaseClient) {
+                window.supabaseClient = supabase;
+            }
+
+            // Initialize
+            async function init() {
+                try {
+                    await loadSurveys();
+                    if (surveys.length > 0) {
+                        currentIndex = 0;
+                        displaySurvey();
+                        updateNavButtons();
+                    }
+                } catch (error) {
+                    showError(error.message);
+                }
+            }
+
+            // Fetch surveys from Supabase
+            async function loadSurveys() {
+                const { data, error } = await supabase
+                    .from("sondages")
+                    .select("*")
+                    .order("id", { ascending: false });
+
+                if (error) throw error;
+
+                surveys = data.map((survey, idx) => ({
+                    ...survey,
+                    display_index: idx + 1
+                }));
+
+                renderSidebarList();
+                document.getElementById("total-surveys").textContent = surveys.length;
+            }
+
+            ////////// Render sidebar list of surveys ///////////////////
+
+            // Display survey details
+            function displaySurvey() {
+                if (currentIndex < 0 || currentIndex >= surveys.length) return;
+
+                const survey = surveys[currentIndex];
+                document.getElementById("current-index").textContent = survey.display_index;
+
+                const content = document.getElementById("survey-display");
+
+                const meta = `
+                <div class="survey-meta">
+                    <div class="meta-item">
+                        <span class="meta-label">ID</span>
+                        <span class="meta-value">${survey.id}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Type de formulaire</span>
+                        <span class="meta-value">${survey.s_type || "N/A"}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Date</span>
+                        <span class="meta-value">${new Date(survey.timestamp).toLocaleString("fr-FR")}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Langue</span>
+                        <span class="meta-value">${survey.language || "N/A"}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Fuseau horaire</span>
+                        <span class="meta-value">${survey.timezone || "N/A"}</span>
+                    </div>
+                </div>
+            `;
+
+                // Generate questions dynamically based on actual response count
+                const responseKeys = Object.keys(survey.responses);
+                const questionCount = responseKeys.length;
+                const QUESTIONS_TEMP = generateQuestionsTemp(questionCount);
+
+                const questionsHtml = QUESTIONS_TEMP.map((question, idx) => {
+                    const answer = survey.responses[responseKeys[idx]];
+                    const answerHtml = Array.isArray(answer)
+                        ? `<div class="answer-array">${answer.map(a => `<div class="answer-badge">${a}</div>`).join("")}</div>`
+                        : `<div class="answer-text">${answer || "N/A"}</div>`;
+
+                    return `
+                    <div class="question-block">
+                        <div class="question-text">${question}</div>
+                        ${answerHtml}
+                    </div>
+                `;
+                }).join("");
+
+                content.innerHTML = meta + `<div class="survey-questions">${questionsHtml}</div>`;
+            }
+            ////////// Navigation buttons //////////////////////
+
+            // Format date to JJ/MM/AA
+            function formatDate(isoDate) {
+                const date = new Date(isoDate);
+                const day = String(date.getDate()).padStart(2, "0");
+                const month = String(date.getMonth() + 1).padStart(2, "0");
+                const year = String(date.getFullYear()).slice(-2);
+                return `${day}/${month}/${year}`;
+            }
+
+            // Error handling
+            function showError(message) {
+                document.getElementById("survey-display").innerHTML = `
+                <div class="error">
+                    <strong>Erreur:</strong> ${message}
+                </div>
+            `;
+            }
+
+            // Start
+            init();
+        }
+
+    </script>
+</body>
+
+</html>
