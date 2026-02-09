@@ -71,6 +71,7 @@
                 les uns en dessous des autres*/
                 grid-template-columns: 1fr 1fr 1fr;
                 width: 100%;
+                height: var(--topbar-height);
                 border-bottom: 1px solid var(--border-color);
                 /*gap: 5px;*/
                 /*white-space: nowrap;*/
@@ -93,6 +94,22 @@
                 /*rgba(255, 6, 181,0.3);*/
             }
         }
+
+        .sidebar {
+            /* Custom scrollbar styling for better browser support */
+            scrollbar-color: var(--primary-color) var(--background-secondary);
+            /* For Firefox */
+        }
+
+        /* Webkit-based browsers */
+        .sidebar::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: var(--background-secondary);
+        }
     </style>
     <div class="sidebar">
         <style>
@@ -107,7 +124,17 @@
                 color: var(--text-color);
                 font-weight: bold;
                 font-size: 16px;
+                /*  width: var(--separ-vertibar);*/
                 height: var(--separ-horizibar);
+                position: fixed;
+
+                @media (max-width: 600px) {
+                    width: 100%;
+                }
+
+                @media (min-width: 600px) {
+                    width: var(--separ-vertibar);
+                }
             }
         </style>
         <div class="sidebar-header">📊 Sondages</div>
@@ -154,19 +181,38 @@
                 font-size: 12px;
                 color: var(--text-color);
             }
+
+            .survey-list {
+                padding-top: var(--separ-horizibar);
+            }
+
+            /*       @media (max-width: 600px) {
+                .survey-list {
+                    padding-top: 0;
+                }
+            }*/
         </style>
         <div id="survey-list" class="survey-list"></div><!-- liste des sondages -->
         <script>
             // Render sidebar list
             function renderSidebarList() {
                 const list = document.getElementById("survey-list");
-                list.innerHTML = surveys.map((survey, idx) => `
+                // Inverse l'ordre d'affichage : le dernier en premier
+                list.innerHTML = surveys.map((_, idx) => idx).reverse().map(idx => `
                 <div class="survey-item ${idx === currentIndex ? "active" : ""}" data-index="${idx}">
-                    <div class="survey-index">#${survey.display_index}</div>
-                    <div class="survey-form-id">${survey.form_id}</div>
-                    <div class="survey-date">${formatDate(survey.timestamp)}</div>
+                    <div class="survey-index">#${surveys[idx].display_index}</div>
+                    <div class="survey-form-id">${surveys[idx].form_id}</div>
+                    <div class="survey-date">${formatDate(surveys[idx].timestamp)}</div>
                 </div>
             `).join("");
+                // Format date to JJ/MM/AA
+                function formatDate(isoDate) {
+                    const date = new Date(isoDate);
+                    const day = String(date.getDate()).padStart(2, "0");
+                    const month = String(date.getMonth() + 1).padStart(2, "0");
+                    const year = String(date.getFullYear()).slice(-2);
+                    return `${day}/${month}/${year}`;
+                }
                 // Add click listeners
                 document.querySelectorAll(".survey-item").forEach(item => {
                     item.addEventListener("click", () => {
@@ -240,7 +286,8 @@
 
             @media (max-width: 600px) {
                 .header {
-                    /*additionner 2 valeurs*/
+                    position: fixed;
+                    width: 100%;
                 }
             }
 
@@ -338,9 +385,56 @@
         <style>
             /* Survey content */
             .survey-content {
-                padding: 30px;
                 flex: 1;
+                /*occupe tout l'espace disponible dans le conteneur flex*/
                 overflow-y: auto;
+
+                @media (max-width: 600px) {
+                    padding: 30px;
+                    padding-top: calc(var(--separ-horizibar) + 20px);
+                    /*calc(var(--separ-horizibar) + var(--separ-horizibar));*/
+                }
+
+                @media (min-width: 600px) {
+                    padding: 20px;
+                    padding-left: calc(var(--separ-vertibar) + 20px);
+                }
+            }
+
+            @media (max-width: 600px) {
+                .survey-content {
+                    /* Custom scrollbar styling for better browser support */
+                    scrollbar-color: var(--primary-color) var(--background-secondary);
+                    /* For Firefox */
+                }
+
+                /* Webkit-based browsers */
+                .survey-content::-webkit-scrollbar-thumb {
+                    background: var(--primary-color);
+                    border-radius: 4px;
+                }
+
+                .survey-content::-webkit-scrollbar-track {
+                    background: var(--background-secondary);
+                }
+            }
+
+            @media (min-width: 600px) {
+                .survey-content {
+                    /* Custom scrollbar styling for better browser support */
+                    scrollbar-color: var(--primary-color) var(--background-secondary);
+                    /* For Firefox */
+                }
+
+                /* Webkit-based browsers */
+                .survey-content::-webkit-scrollbar-thumb {
+                    background: var(--primary-color);
+                    border-radius: 4px;
+                }
+
+                .survey-content::-webkit-scrollbar-track {
+                    background: var(--background-secondary);
+                }
             }
 
             .survey-meta {
@@ -348,7 +442,7 @@
                 gap: 30px;
                 margin-bottom: 25px;
                 padding: 15px;
-                background: #f9f9f9;
+                background: var(--background-color);
                 border-radius: 8px;
                 font-size: 14px;
             }
@@ -361,11 +455,11 @@
 
             .meta-label {
                 font-weight: bold;
-                color: #666;
+                color: var(--accent-color);
             }
 
             .meta-value {
-                color: #333;
+                color: var(--text-color);
                 font-family: monospace;
             }
 
@@ -377,19 +471,19 @@
 
             .question-block {
                 padding: 15px;
-                background: #fafafa;
-                border-left: 4px solid #0073e6;
+                background: var(--background-color);
+                border-left: 4px solid var(--accent-color);
                 border-radius: 5px;
             }
 
             .question-text {
                 font-weight: bold;
                 margin-bottom: 8px;
-                color: #0073e6;
+                color: var(--text-color);
             }
 
             .answer-text {
-                color: #333;
+                color: var(--text-color);
                 font-size: 14px;
                 line-height: 1.6;
             }
@@ -402,8 +496,8 @@
             }
 
             .answer-badge {
-                background: #e3f2fd;
-                color: #0073e6;
+                background: var(--primary-color);
+                color: var(--accent-color);
                 padding: 5px 12px;
                 border-radius: 20px;
                 font-size: 12px;
@@ -416,13 +510,14 @@
                 align-items: center;
                 height: 100%;
                 font-size: 18px;
-                color: #666;
+                font-weight: bold;
+                color: var(--text-color);
             }
 
             .error {
                 padding: 20px;
-                background: #ffebee;
-                color: #c62828;
+                background: red;
+                color: var(--text-color);
                 border-radius: 5px;
                 margin: 20px;
             }
@@ -430,60 +525,11 @@
         <div id="survey-display" class="survey-content">
             <div class="loading">Chargement des sondages...</div>
         </div>
-    </main>
-    <script>
-        if (!window.visalizerLoaded) { // Vérifie si le script a déjà été chargé pour éviter les doublons  
-            window.visalizerLoaded = true;
-
+        <script>
             // Function to generate temp questions dynamically
             function generateQuestionsTemp(count) {
                 return Array.from({ length: count }, (_, i) => `Ask ${String(i + 1).padStart(2, "0")}`);
             }
-
-
-            const supabase = window.supabaseClient || window.supabase.createClient(
-                "https://cpktnkjahurhvhabwnsf.supabase.co",
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwa3Rua2phaHVyaHZoYWJ3bnNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0NTAxMjIsImV4cCI6MjA2MTAyNjEyMn0.YRYNYYTa4OGSG2a1tnNPGtp4KPf-tp9ooY4l0ZV3CDU"
-            );
-
-            if (!window.supabaseClient) {
-                window.supabaseClient = supabase;
-            }
-
-            // Initialize
-            async function init() {
-                try {
-                    await loadSurveys();
-                    if (surveys.length > 0) {
-                        currentIndex = 0;
-                        displaySurvey();
-                        updateNavButtons();
-                    }
-                } catch (error) {
-                    showError(error.message);
-                }
-            }
-
-            // Fetch surveys from Supabase
-            async function loadSurveys() {
-                const { data, error } = await supabase
-                    .from("sondages")
-                    .select("*")
-                    .order("id", { ascending: false });
-
-                if (error) throw error;
-
-                surveys = data.map((survey, idx) => ({
-                    ...survey,
-                    display_index: idx + 1
-                }));
-
-                renderSidebarList();
-                document.getElementById("total-surveys").textContent = surveys.length;
-            }
-
-            ////////// Render sidebar list of surveys ///////////////////
-
             // Display survey details
             function displaySurvey() {
                 if (currentIndex < 0 || currentIndex >= surveys.length) return;
@@ -539,17 +585,45 @@
 
                 content.innerHTML = meta + `<div class="survey-questions">${questionsHtml}</div>`;
             }
-            ////////// Navigation buttons //////////////////////
-
-            // Format date to JJ/MM/AA
-            function formatDate(isoDate) {
-                const date = new Date(isoDate);
-                const day = String(date.getDate()).padStart(2, "0");
-                const month = String(date.getMonth() + 1).padStart(2, "0");
-                const year = String(date.getFullYear()).slice(-2);
-                return `${day}/${month}/${year}`;
+        </script>
+    </main>
+    <script>
+        if (!window.visalizerLoaded) { // Vérifie si le script a déjà été chargé pour éviter les doublons  
+            window.visalizerLoaded = true;
+            const supabase = window.supabaseClient || window.supabase.createClient(
+                "https://cpktnkjahurhvhabwnsf.supabase.co",
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwa3Rua2phaHVyaHZoYWJ3bnNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0NTAxMjIsImV4cCI6MjA2MTAyNjEyMn0.YRYNYYTa4OGSG2a1tnNPGtp4KPf-tp9ooY4l0ZV3CDU"
+            );
+            if (!window.supabaseClient) {
+                window.supabaseClient = supabase;
             }
-
+            // Initialize
+            async function init() {
+                try {
+                    await loadSurveys();
+                    if (surveys.length > 0) {
+                        currentIndex = 0;
+                        displaySurvey();
+                        updateNavButtons();
+                    }
+                } catch (error) {
+                    showError(error.message);
+                }
+            }
+            // Fetch surveys from Supabase
+            async function loadSurveys() {
+                const { data, error } = await supabase
+                    .from("sondages")
+                    .select("*")
+                    .order("timestamp", { ascending: true });
+                if (error) throw error;
+                surveys = data.map((survey, idx) => ({ // map = méthode JavaScript pour transformer les éléments d'un tableau en appliquant une fonction à chacun d'eux
+                    ...survey, // Spread operator pour copier les propriétés de l'objet survey
+                    display_index: idx + 1 // Ajoute une propriété display_index pour l'affichage (1-based index)
+                }));
+                renderSidebarList();
+                document.getElementById("total-surveys").textContent = surveys.length;
+            }
             // Error handling
             function showError(message) {
                 document.getElementById("survey-display").innerHTML = `
@@ -558,11 +632,9 @@
                 </div>
             `;
             }
-
             // Start
             init();
         }
-
     </script>
 </body>
 

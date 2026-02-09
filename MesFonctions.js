@@ -1,3 +1,5 @@
+//////////couleur de l'ascenseur////////////////////////
+scrollbar - color: var(--primary - color) var(--background - secondary);
 /////////// Transition de couleur sur les boutons de navigation //////////////////////////
                 .nav - btn {
     background: var(--primary - color);
