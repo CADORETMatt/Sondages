@@ -381,8 +381,101 @@
             }
 
             if (!form) return;
+            function extractQuestionText(field) {
+                const label = field.closest("label");
+                if (!label) return "Question non trouvée";
+
+                const clone = label.cloneNode(true);
+
+                // On enlève tout ce qui est interactif + les <br> qui traînent
+                clone.querySelectorAll("input, select, textarea, br").forEach(el => el.remove());
+
+                // On enlève aussi les éventuels <strong>, <b>, <span> vides ou inutiles
+                clone.querySelectorAll("strong, b, span").forEach(el => {
+                    if (!el.textContent.trim()) el.remove();
+                });
+
+                let text = clone.textContent || "";
+
+                return text
+                    .replace(/^\s*[\dIVXLCDM]+\.\s*/i, "")     // 1.  2.  I.  etc.
+                    .replace(/\s*:\s*$/, "")                    // enlève le : final
+                    .replace(/\s*(\?|!|\.)\s*$/, "$1")          // garde la ponctuation finale si présente
+                    .replace(/\s+/g, " ")
+                    .trim();
+            }
+
+
+            function buildResponsesFromForm(form) {
+                const formData = new FormData(form);
+                const responses = {};
+                let index = 1;
+
+                // On parcourt les <label> plutôt que les champs → beaucoup plus stable
+                const labels = Array.from(form.querySelectorAll("label"));
+
+                labels.forEach(label => {
+                    // On cherche les contrôles dans ce label
+                    const controls = label.querySelectorAll("input, select, textarea");
+
+                    if (controls.length === 0) return;
+
+                    // On prend le premier champ pour récupérer le name (tous les checkboxes/radios du même groupe ont le même name)
+                    const firstControl = controls[0];
+                    const name = firstControl.name;
+
+                    if (!name) return;
+
+                    // On évite de traiter deux fois le même name
+                    if (responses[index] && responses[index].key === name) return;
+
+                    const values = formData.getAll(name);
+                    if (values.length === 0 || (values.length === 1 && !values[0])) return;
+
+                    const questionText = extractQuestionText(firstControl);
+
+                    responses[index] = {
+                        key: name,
+                        question: questionText,
+                        answer: values.length === 1 ? values[0] : values
+                    };
+
+                    index++;
+                });
+
+                return responses;
+            }
 
             form.addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                const responses = buildResponsesFromForm(form);
+
+                const payload = {
+                    form_id: form.id,
+                    s_type: screen,
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    timestamp: new Date().toISOString(),
+                    language: navigator.language || navigator.userLanguage,
+                    responses: responses
+                };
+
+                try {
+                    const { error } = await supabase
+                        .from("sondages")
+                        .insert([payload]);
+
+                    if (error) {
+                        alert("❌ Erreur lors de l'envoi : " + error.message);
+                    } else {
+                        alert("✅ Merci ! Vos réponses ont bien été enregistrées.");
+                        form.reset();
+                    }
+                } catch (err) {
+                    alert("💥 Une erreur inattendue est survenue : " + err.message);
+                }
+            });
+            /*form.addEventListener("submit", async (e) => {
                 e.preventDefault();
 
                 const formData = new FormData(form);
@@ -417,7 +510,7 @@
                 } catch (err) {
                     alert("💥 Une erreur inattendue est survenue : " + err.message);
                 }
-            });
+            });*/
         });
     </script>
 </body>

@@ -37,7 +37,7 @@
         --padding: 16px;
         --separ-vertibar: 20vw;
         --separ-horizibar: 10vh;
-        --topbar-height: 30vh;
+        --topbar-height: 32vh;
     }
 
     body {
@@ -140,13 +140,28 @@
         <div class="sidebar-header">📊 Sondages</div>
         <style>
             .survey-item {
-                padding: 15px 20px;
-                border-bottom: 1px solid var(--border-color);
+                background-color: #222;
+                border: 1px solid var(--border-color);
                 cursor: pointer;
                 transition: background 0.3s;
                 display: flex;
                 flex-direction: column;
-                gap: 5px;
+                gap: 5%;
+
+                @media (max-width: 600px) {
+                    margin: 5px;
+                    padding: 0 15px;
+                    padding-top: 2%;
+                    padding-bottom: 2%;
+                    /*padding-top: 2%;*/
+                }
+
+                @media (min-width: 600px) {
+                    padding: 15px 20px;
+                    /*padding-top: 2%;
+                padding-bottom: 2%;*/
+                    /*padding-top: 2%;*/
+                }
             }
 
             .survey-item:hover {
@@ -157,8 +172,16 @@
             .survey-item.active {
                 /*active = classe CSS pour indiquer que l'élément est sélectionné*/
                 background: var(--primary-color);
-                border-left: 4px solid var(--border-color);
-                padding-left: 16px;
+
+                @media (max-width: 600px) {
+                    border-top: 4px solid var(--border-color);
+                }
+
+                @media (min-width: 600px) {
+                    border-left: 4px solid var(--border-color);
+                }
+
+                /*padding-top: 16px;*/
             }
 
             .survey-index {
@@ -184,6 +207,27 @@
 
             .survey-list {
                 padding-top: var(--separ-horizibar);
+                border-radius: 5px;
+                gap: 5px;
+
+                @media (min-width: 600px) {
+                    gap: 0;
+                }
+            }
+
+            /*padding-top: 0;*/
+            @media (max-width: 600px) {
+                .survey-list {
+                    background-color: #000;
+                    display: flex;
+                    flex-direction: row;
+                    overflow-y: hidden;
+                    overflow-x: auto;
+                    /* scrollbar-color: var(--primary-color) var(--background-secondary);*/
+                    height: 100%;
+                    /* ou une valeur adaptée */
+                    max-height: 100%;
+                }
             }
 
             /*       @media (max-width: 600px) {
@@ -445,6 +489,10 @@
                 background: var(--background-color);
                 border-radius: 8px;
                 font-size: 14px;
+
+                @media (max-width: 470px) {
+                    font-size: 2vw;
+                }
             }
 
             .meta-item {
@@ -527,24 +575,34 @@
         </div>
         <script>
             // Function to generate temp questions dynamically
-            function generateQuestionsTemp(count) {
-                return Array.from({ length: count }, (_, i) => `Ask ${String(i + 1).padStart(2, "0")}`);
-            }
+            /* function generateQuestionsTemp(count) {
+                 return Array.from({ length: count }, (_, i) => `Ask ${String(i + 1).padStart(2, "0")}`);
+             }*/
             // Display survey details
             function displaySurvey() {
                 if (currentIndex < 0 || currentIndex >= surveys.length) return;
 
                 const survey = surveys[currentIndex];
+                if (!survey.responses || Object.keys(survey.responses).length === 0) {
+                    content.innerHTML = meta + `
+    <div class="survey-questions">
+      <div class="question-block">
+        <div class="question-text">Aucune réponse enregistrée</div>
+      </div>
+    </div>
+  `;
+                    return;
+                }
                 document.getElementById("current-index").textContent = survey.display_index;
 
                 const content = document.getElementById("survey-display");
 
                 const meta = `
                 <div class="survey-meta">
-                    <div class="meta-item">
+                    <!-- <div class="meta-item">
                         <span class="meta-label">ID</span>
                         <span class="meta-value">${survey.id}</span>
-                    </div>
+                    </div> -->
                     <div class="meta-item">
                         <span class="meta-label">Type de formulaire</span>
                         <span class="meta-value">${survey.s_type || "N/A"}</span>
@@ -565,25 +623,50 @@
             `;
 
                 // Generate questions dynamically based on actual response count
-                const responseKeys = Object.keys(survey.responses);
-                const questionCount = responseKeys.length;
-                const QUESTIONS_TEMP = generateQuestionsTemp(questionCount);
+                /*const responseKeys = Object.keys(survey.responses);
+                const QUESTIONS_TEMP = generateQuestionsTemp(questionCount);*/
+                /*   const questionCount = responseKeys.length;*/
+                const questionsHtml = Object.entries(survey.responses)
+                    .sort(([a], [b]) => Number(a) - Number(b))
+                    .map(([index, item]) => {
 
-                const questionsHtml = QUESTIONS_TEMP.map((question, idx) => {
-                    const answer = survey.responses[responseKeys[idx]];
-                    const answerHtml = Array.isArray(answer)
-                        ? `<div class="answer-array">${answer.map(a => `<div class="answer-badge">${a}</div>`).join("")}</div>`
-                        : `<div class="answer-text">${answer || "N/A"}</div>`;
+                        const answerHtml = Array.isArray(item.answer)
+                            ? `<div class="answer-array">
+          ${item.answer.map(a =>
+                                `<div class="answer-badge">${a}</div>`
+                            ).join("")}
+        </div>`
+                            : `<div class="answer-text">${item.answer || "N/A"}</div>`;
 
-                    return `
-                    <div class="question-block">
-                        <div class="question-text">${question}</div>
-                        ${answerHtml}
-                    </div>
-                `;
-                }).join("");
-
-                content.innerHTML = meta + `<div class="survey-questions">${questionsHtml}</div>`;
+                        return `
+      <div class="question-block">
+        <div class="question-text">
+          ${index}. ${item.question}
+        </div>
+        ${answerHtml}
+      </div>
+    `;
+                    })
+                    .join("");
+                content.innerHTML = meta + `
+  <div class="survey-questions">
+    ${questionsHtml}
+  </div>
+`;                /* const questionsHtml = QUESTIONS_TEMP.map((question, idx) => {
+                     const answer = survey.responses[responseKeys[idx]];
+                     const answerHtml = Array.isArray(answer)
+                         ? `<div class="answer-array">${answer.map(a => `<div class="answer-badge">${a}</div>`).join("")}</div>`
+                         : `<div class="answer-text">${answer || "N/A"}</div>`;
+ 
+                     return `
+                     <div class="question-block">
+                         <div class="question-text">${question}</div>
+                         ${answerHtml}
+                     </div>
+                 `;
+                 }).join("");
+ 
+                 content.innerHTML = meta + `<div class="survey-questions">${questionsHtml}</div>`;*/
             }
         </script>
     </main>
@@ -601,16 +684,19 @@
             async function init() {
                 try {
                     await loadSurveys();
+
                     if (surveys.length > 0) {
-                        currentIndex = 0;
+                        // ✅ Active le sondage le plus récent
+                        currentIndex = surveys.length - 1;
+
+                        renderSidebarList();
                         displaySurvey();
                         updateNavButtons();
                     }
                 } catch (error) {
                     showError(error.message);
                 }
-            }
-            // Fetch surveys from Supabase
+            }            // Fetch surveys from Supabase
             async function loadSurveys() {
                 const { data, error } = await supabase
                     .from("sondages")
